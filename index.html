@@ -119,6 +119,12 @@
             margin-bottom: 12px; text-align: center; line-height: 1.5;
         }
 
+        .theory-box {
+            background: #e0f2fe; border: 1px dashed #7dd3fc;
+            padding: 10px; border-radius: 8px; margin-top: 12px;
+            font-size: 0.8rem; color: #0369a1; text-align: right; line-height: 1.5;
+        }
+
         .total-row { 
             background: #ffff00;
             padding: 10px; border-radius: 8px; margin-top: 10px; 
@@ -219,10 +225,17 @@
                 
                 <div class="total-row">
                     <div class="recipe-desc">
-                        סה"כ נפח במזרק:
+                        סה"כ נפח הכנה:
                     </div>
                     <span class="val" id="prepTotal">0.0 מ"ל</span>
                 </div>
+
+                <div class="theory-box" id="theoryBox">
+                    <b style="color:#0284c7;">ℹ️ מידע לרוקחות: הכנה מקסימלית</b><br>
+                    ללא התחשבות בקלוריות ה-TPN, ניתן להכין מזרק של עד <b style="font-size:1.1em;" id="theoryVolVal">0</b> <b>מ"ל</b> <br>
+                    (כולל <span id="theoryOmgVal">0</span> מ"ל אומגוון + 5 מ"ל תוספת + <span id="theoryVitVal">0</span> מ"ל ויטמינים).
+                </div>
+
             </div>
         </div>
     </div>
@@ -251,17 +264,27 @@ function build() {
     let vitExpText = (w < 2.5) ? `(לפי 4 מ"ל/ק"ג)` : `(10 מ"ל קבוע למשקל מ-2.5 ק"ג)`;
     document.getElementById('vitExp').innerText = vitExpText;
 
-    // מגבלות שומן
+    // מגבלות קבועות
     const maxWeightGrams = w * 1.0; 
     const maxVolGrams = 10.0; // 100ml max Omegaven
+    const maxSyringeGrams = (55 - vitBaseVol) / 10; // 60ml max syringe
 
+    // 1. חישוב תיאורטי מקסימלי (ללא הגבלת שקית)
+    let maxTheoryFatGrams = Math.min(maxWeightGrams, maxVolGrams, maxSyringeGrams);
+    let maxTheoryOmgBase = maxTheoryFatGrams * 10;
+    let maxTheoryTotal = maxTheoryOmgBase + 5 + vitBaseVol;
+
+    // עדכון קוביית התיאוריה לרוקחות
+    document.getElementById('theoryOmgVal').innerText = maxTheoryOmgBase.toFixed(1);
+    document.getElementById('theoryVitVal').innerText = vitBaseVol.toFixed(1);
+    document.getElementById('theoryVolVal').innerText = maxTheoryTotal.toFixed(1);
+
+    // מגבלת קלוריות מהשקית הנוכחית
     const o = b.options[b.selectedIndex];
     const bagKcal = (r * 24) * (parseFloat(o.dataset.kcal) / parseFloat(o.dataset.vol));
     const maxPercGrams = ((4/6) * bagKcal) / 10;
 
-    // מגבלת מזרק: 60 מ"ל סה"כ הכנה
-    const maxSyringeGrams = (55 - vitBaseVol) / 10;
-
+    // 2. חישוב סופי בפועל
     let fatGrams = Math.min(maxWeightGrams, maxVolGrams, maxPercGrams, maxSyringeGrams);
     let reason = "⚖️ מינון טיפולי לפי 1 ג'/ק\"ג";
     
@@ -276,7 +299,7 @@ function build() {
     const omgBaseVol = fatGrams * 10; 
     const adminVolTotal = omgBaseVol + vitBaseVol;
 
-    // עיגול בטיחותי כלפי מטה תמיד
+    // קצב - עיגול מחמיר למטה למשאבה
     const rawRate = adminVolTotal / 24;
     const rateRounded = Math.floor(rawRate * 10) / 10;
 
@@ -289,6 +312,13 @@ function build() {
     // הרכב מזרק
     const prepVit = vitBaseVol;
     const prepTotal = omgBaseVol + 5 + prepVit;
+
+    // אם המקסימום התיאורטי שווה למקסימום בפועל, אין טעם להציג את קוביית הרוקחות
+    if (Math.abs(maxTheoryTotal - prepTotal) < 0.1) {
+        document.getElementById('theoryBox').style.display = 'none';
+    } else {
+        document.getElementById('theoryBox').style.display = 'block';
+    }
 
     // עדכון המסך
     document.getElementById('adminRate').innerText = rateRounded.toFixed(1);
