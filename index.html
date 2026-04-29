@@ -197,7 +197,7 @@
                 
                 <div class="green-info-box">
                     🌿 חישוב האומגוון מבוסס על היעד (1 ג'/ק"ג)<br>
-                    בתוספת של 5 מ"ל למילוי הצנרת (Dead Space).
+                    תוספת ה-Dead Space הוגדלה מעט מעל 5 מ"ל כדי ליצור נפח אומגוון שאיבה עגול ונוח.
                 </div>
                 
                 <div class="recipe-row">
@@ -210,9 +210,10 @@
                 
                 <div class="recipe-row">
                     <div class="recipe-desc">
-                        <span>אומגוון - תוספת למילוי הצנרת:</span>
+                        <span>אומגוון - תוספת צינור (Dead Space):</span>
+                        <span class="omg-exp">(משלים את נפח האומגוון למספר שלם)</span>
                     </div>
-                    <span class="val">5.0 מ"ל</span>
+                    <span class="val" id="prepDeadSpace">5.0 מ"ל</span>
                 </div>
                 
                 <div class="recipe-row">
@@ -233,7 +234,7 @@
                 <div class="theory-box" id="theoryBox">
                     <b style="color:#0284c7;">ℹ️ מידע לרוקחות: הכנה מקסימלית</b><br>
                     ללא התחשבות בקלוריות ה-TPN, ניתן להכין מזרק של עד <b style="font-size:1.1em;" id="theoryVolVal">0</b> <b>מ"ל</b> <br>
-                    (כולל <span id="theoryOmgVal">0</span> מ"ל אומגוון + 5 מ"ל תוספת + <span id="theoryVitVal">0</span> מ"ל ויטמינים).
+                    (מורכב מ-<span id="theoryOmgVal">0</span> מ"ל אומגוון לשאיבה + <span id="theoryVitVal">0</span> מ"ל ויטמינים).
                 </div>
 
             </div>
@@ -266,16 +267,18 @@ function build() {
 
     // מגבלות קבועות
     const maxWeightGrams = w * 1.0; 
-    const maxVolGrams = 10.0; // 100ml max Omegaven
-    const maxSyringeGrams = (55 - vitBaseVol) / 10; // 60ml max syringe
+    const maxVolGrams = 10.0; 
+    
+    // חישוב המגבלה למזרק כולל חובת העיגול: מבטיח שהשאיבה לא תחרוג מ-60 מ"ל
+    const maxSyringeGrams = Math.floor(60 - vitBaseVol - 5) / 10;
 
-    // 1. חישוב תיאורטי מקסימלי (ללא הגבלת שקית)
+    // 1. חישוב תיאורטי מקסימלי לרוקחות
     let maxTheoryFatGrams = Math.min(maxWeightGrams, maxVolGrams, maxSyringeGrams);
     let maxTheoryOmgBase = maxTheoryFatGrams * 10;
-    let maxTheoryTotal = maxTheoryOmgBase + 5 + vitBaseVol;
+    let maxTheoryPrepOmgTotal = Math.ceil(maxTheoryOmgBase + 5); 
+    let maxTheoryTotal = maxTheoryPrepOmgTotal + vitBaseVol;
 
-    // עדכון קוביית התיאוריה לרוקחות
-    document.getElementById('theoryOmgVal').innerText = maxTheoryOmgBase.toFixed(1);
+    document.getElementById('theoryOmgVal').innerText = maxTheoryPrepOmgTotal.toFixed(1);
     document.getElementById('theoryVitVal').innerText = vitBaseVol.toFixed(1);
     document.getElementById('theoryVolVal').innerText = maxTheoryTotal.toFixed(1);
 
@@ -309,11 +312,13 @@ function build() {
     const actualFatGrams = actualOmgVol / 10;
     const actualFatPerKg = actualFatGrams / w;
 
-    // הרכב מזרק
+    // הרכב מזרק עם Dead Space דינמי וחכם לעיגול השאיבה
+    const prepOmgTotal = Math.ceil(omgBaseVol + 5);
+    const actualDeadSpace = prepOmgTotal - omgBaseVol;
     const prepVit = vitBaseVol;
-    const prepTotal = omgBaseVol + 5 + prepVit;
+    const prepTotal = prepOmgTotal + prepVit;
 
-    // אם המקסימום התיאורטי שווה למקסימום בפועל, אין טעם להציג את קוביית הרוקחות
+    // הצגה או הסתרה של קוביית התיאוריה
     if (Math.abs(maxTheoryTotal - prepTotal) < 0.1) {
         document.getElementById('theoryBox').style.display = 'none';
     } else {
@@ -330,6 +335,7 @@ function build() {
     document.getElementById('actualFatPerKgVal').innerText = actualFatPerKg.toFixed(2);
 
     document.getElementById('prepOmgBase').innerText = omgBaseVol.toFixed(1) + ' מ"ל';
+    document.getElementById('prepDeadSpace').innerText = actualDeadSpace.toFixed(1) + ' מ"ל';
     document.getElementById('prepVit').innerText = prepVit.toFixed(1) + ' מ"ל';
     document.getElementById('prepTotal').innerText = prepTotal.toFixed(1) + ' מ"ל';
 }
