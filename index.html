@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Omegaven Syringe Builder Pro</title>
+    <style>
+        :root {
+            --primary: #0284c7; 
+            --success: #059669; 
+            --success-bg: #ecfdf5;
+            --warning: #d97706; 
+            --danger: #dc2626;
+            --text-main: #334155;
+            --border: #e2e8f0;
+        }
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); margin: 0; padding: 10px; 
+            direction: rtl; color: var(--text-main);
+            min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
+        }
+
+        .app-container {
+            width: 100%; max-width: 450px; margin: 0 auto;
+            background: #ffffff; border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(217, 119, 6, 0.15);
+            overflow: hidden; border: 1px solid #fffbeb;
+        }
+
+        .header {
+            background: #ffffff; color: var(--warning);
+            padding: 15px 15px 10px; text-align: center;
+            border-bottom: 1px solid #fef3c7;
+        }
+
+        .header h1 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #b45309; }
+
+        .content { padding: 12px 15px; }
+
+        .input-card {
+            background: #ffffff; border: 1px solid var(--border);
+            border-radius: 16px; padding: 12px; margin-bottom: 12px;
+        }
+        
+        .step-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 700; }
+        .input-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+        input, select {
+            padding: 10px; border: 2px solid #f1f5f9; border-radius: 10px; 
+            font-size: 0.95rem; font-weight: 600; background: #f8fafc;
+            box-sizing: border-box;
+        }
+
+        .weight-input { width: 100px; text-align: center; background: #fef3c7 !important; border-color: #fde68a !important; }
+
+        .rate-control {
+            display: flex; align-items: center;
+            background: #fef9c3; border: 2px solid #fde047;
+            border-radius: 10px; overflow: hidden;
+        }
+
+        .rate-input {
+            width: 55px !important; border: none !important;
+            background: transparent !important; text-align: center;
+            padding: 10px 0 !important; font-size: 1rem !important;
+        }
+
+        .step-btn {
+            background: rgba(234, 179, 8, 0.1); border: none;
+            color: var(--warning); font-size: 1.2rem; font-weight: 800;
+            width: 30px; height: 100%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .result-section {
+            background: var(--success-bg); border: 2px solid #a7f3d0;
+            border-radius: 18px; padding: 15px; margin-top: 10px; display: none;
+        }
+
+        .admin-box { text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #a7f3d0; }
+        .admin-rate { font-size: 2.8rem; font-weight: 900; color: var(--success); line-height: 1; margin: 5px 0; }
+        
+        .reason-tag { 
+            display: inline-block; background: #ffff00; border: 2px solid #eab308; 
+            color: #000; padding: 4px 14px; border-radius: 20px; 
+            font-size: 0.85rem; font-weight: 900; margin-top: 5px; 
+            box-shadow: 0 4px 10px rgba(234, 179, 8, 0.3);
+        }
+
+        .actual-delivery-box {
+            background: #fef3c7; border: 1px solid #fde68a;
+            padding: 10px 12px; border-radius: 12px; margin-top: 12px;
+            text-align: right; line-height: 1.6;
+        }
+
+        .highlight-fat {
+            background: #ffff00; color: #000; padding: 2px 6px; border-radius: 6px; font-weight: 900; border: 1px solid #eab308;
+        }
+
+        .pharmacy-box { background: #ffffff; border-radius: 12px; padding: 12px; border: 1px solid #d1fae5; }
+        
+        .recipe-row { 
+            display: flex; justify-content: space-between; align-items: flex-start;
+            font-size: 0.85rem; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; gap: 10px; 
+        }
+        .recipe-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        .recipe-desc { display: flex; flex-direction: column; flex: 1; }
+        .val { font-weight: 800; color: #0f172a; white-space: nowrap; margin-top: 2px; }
+        
+        .vit-exp { font-size: 0.7rem; color: #047857; font-weight: 600; margin-top: 2px; }
+        .omg-exp { font-size: 0.7rem; color: #b45309; font-weight: 600; margin-top: 2px; }
+
+        .green-info-box {
+            background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
+            padding: 8px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700;
+            margin-bottom: 12px; text-align: center; line-height: 1.5;
+        }
+
+        .total-row { 
+            background: #ffff00;
+            padding: 10px; border-radius: 8px; margin-top: 10px; 
+            border: 2px solid #eab308; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.25); flex-wrap: wrap; gap: 5px;
+        }
+        .total-row .recipe-desc { font-weight: 900; color: #000; font-size: 0.9rem; line-height: 1.2; flex: 1; }
+        .total-row .val { font-weight: 900; color: #000; font-size: 1.1rem; }
+
+        .footer { text-align: center; padding: 12px; font-size: 0.7rem; color: #92400e; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>בניית מזרק אומגוון (שניידר)</h1>
+        <p style="margin: 0; font-size: 0.8rem; color: #d97706; font-weight: 700;">Omegaven 10% + Vitalipid</p>
+    </div>
+    <div class="content">
+        
+        <div class="input-card">
+            <div class="input-row">
+                <div class="step-title" style="margin:0;">משקל המטופל (ק"ג)</div>
+                <input type="number" id="w" class="weight-input" min="0.1" step="0.1" oninput="build()">
+            </div>
+        </div>
+
+        <div class="input-card">
+            <div class="step-title">נתוני TPN (למגבלת 40%)</div>
+            <select id="bag" onchange="build()" style="width: 100%; margin-bottom: 10px;">
+                <option value="" disabled selected>בחירת שקית TPN...</option>
+                <option value="300-15" data-kcal="189.9" data-vol="300">🔴 300ml 15%DEX</option>
+                <option value="500-12.5" data-kcal="253" data-vol="500">🟢 500ml 12.5%DEX</option>
+                <option value="500-15" data-kcal="316.5" data-vol="500">🔴 500ml 15%DEX</option>
+                <option value="1000-10" data-kcal="442" data-vol="1000">🔵 1000ml 10%DEX</option>
+                <option value="1500-10" data-kcal="673" data-vol="1500">🔵 1500ml 10%DEX</option>
+                <option value="1500-15" data-kcal="929" data-vol="1500">🔴 1500ml 15%DEX</option>
+                <option value="2000-10" data-kcal="923.4" data-vol="2000">🔵 2000ml 10%DEX</option>
+                <option value="2000-15" data-kcal="1265.4" data-vol="2000">🔴 2000ml 15%DEX</option>
+            </select>
+            <div class="input-row">
+                <span style="font-size: 0.85rem; font-weight: 600;">קצב שקית (מ"ל/שעה)</span>
+                <div class="rate-control">
+                    <button class="step-btn" onclick="stepRate(-1)">−</button>
+                    <input type="number" id="rBag" class="rate-input" min="0" step="1" oninput="build()">
+                    <button class="step-btn" onclick="stepRate(1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resCard" class="result-section">
+            <div class="admin-box">
+                <div style="font-size: 0.9rem; font-weight: 800; color: #065f46;">קצב למתן (במשאבה):</div>
+                <div id="adminRate" class="admin-rate">0.0</div>
+                <div style="font-weight: 800; font-size: 1rem; color: #059669;">מ"ל / שעה</div>
+                <div id="limitReason" class="reason-tag"></div>
+                
+                <div class="actual-delivery-box">
+                    <div style="font-size: 0.8rem; color: #92400e; font-weight: 800; margin-bottom: 4px;">⚠️ בפועל (לפי קצב המשאבה ב-24ש'):</div>
+                    <div style="font-size: 0.85rem; color: #b45309;">
+                        נפח יומי: <b><span id="actualVolVal">0</span> מ"ל</b><br>
+                        כמות שומן: <b><span id="actualFatGramsVal">0</span> גרם</b> 
+                        (<span class="highlight-fat"><span id="actualFatPerKgVal">0</span> ג'/ק"ג</span>)
+                    </div>
+                </div>
+            </div>
+
+            <div class="pharmacy-box">
+                <div style="font-size: 0.9rem; font-weight: 800; color: #065f46; margin-bottom: 10px; text-align: center; border-bottom: 2px solid #d1fae5; padding-bottom: 5px;">🧪 מרשם הכנה במזרק</div>
+                
+                <div class="green-info-box">
+                    🌿 חישוב האומגוון מבוסס על היעד (1 ג'/ק"ג)<br>
+                    בתוספת של 5 מ"ל למילוי הצנרת (Dead Space).
+                </div>
+                
+                <div class="recipe-row">
+                    <div class="recipe-desc">
+                        <span>אומגוון 10% (למתן):</span>
+                        <span class="omg-exp" id="omgExp"></span>
+                    </div>
+                    <span class="val" id="prepOmgBase">0.0 מ"ל</span>
+                </div>
+                
+                <div class="recipe-row">
+                    <div class="recipe-desc">
+                        <span>אומגוון - תוספת למילוי הצנרת:</span>
+                    </div>
+                    <span class="val">5.0 מ"ל</span>
+                </div>
+                
+                <div class="recipe-row">
+                    <div class="recipe-desc">
+                        <span>ויטמינים (Vitalipid):</span>
+                        <span class="vit-exp" id="vitExp"></span>
+                    </div>
+                    <span class="val" id="prepVit">0.0 מ"ל</span>
+                </div>
+                
+                <div class="total-row">
+                    <div class="recipe-desc">
+                        סה"כ נפח במזרק:
+                    </div>
+                    <span class="val" id="prepTotal">0.0 מ"ל</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">כל הזכויות שמורות לענת מסלנסקי - דיאטנית קלינית.</div>
+</div>
+
+<script>
+function stepRate(val) {
+    const r = document.getElementById('rBag');
+    let current = parseInt(r.value) || 0;
+    r.value = Math.max(0, current + val);
+    build();
+}
+
+function build() {
+    const w = parseFloat(document.getElementById('w').value);
+    const b = document.getElementById('bag');
+    const r = parseFloat(document.getElementById('rBag').value);
+    const c = document.getElementById('resCard');
+
+    if (!w || w <= 0 || !b.value || isNaN(r) || r < 0) { c.style.display = 'none'; return; }
+    c.style.display = 'block';
+
+    // חישוב ויטמינים מראש כי הם משפיעים על מגבלת המזרק
+    let vitBaseVol = (w < 2.5) ? (w * 4) : 10;
+    let vitExpText = (w < 2.5) ? `(לפי 4 מ"ל/ק"ג)` : `(10 מ"ל קבוע למשקל מ-2.5 ק"ג)`;
+    document.getElementById('vitExp').innerText = vitExpText;
+
+    // מגבלות שומן בגרמים
+    const maxWeightGrams = w * 1.0; 
+    const maxVolGrams = 10.0; // 100ml max Omegaven
+
+    const o = b.options[b.selectedIndex];
+    const bagKcal = (r * 24) * (parseFloat(o.dataset.kcal) / parseFloat(o.dataset.vol));
+    const maxPercGrams = ((4/6) * bagKcal) / 10;
+
+    // מגבלת נפח מזרק: 60 = (Grams * 10) + 5 + vitBaseVol
+    // => Grams = (55 - vitBaseVol) / 10
+    const maxSyringeGrams = (55 - vitBaseVol) / 10;
+
+    let fatGrams = Math.min(maxWeightGrams, maxVolGrams, maxPercGrams, maxSyringeGrams);
+    let reason = "⚖️ מינון טיפולי לפי 1 ג'/ק\"ג";
+    
+    if (fatGrams === maxSyringeGrams && fatGrams < maxWeightGrams && fatGrams < maxVolGrams && fatGrams < maxPercGrams) {
+        reason = "🚫 הוגבל לנפח מזרק מקסימלי (60 מ\"ל)";
+    } else if (fatGrams === maxVolGrams && fatGrams < maxWeightGrams) {
+        reason = "🚫 יעד הוגבל לנפח מקסימלי (100 מ\"ל אומגוון)";
+    } else if (fatGrams === maxPercGrams) {
+        reason = "🔥 יעד הוגבל לפי 40% מהקלוריות";
+    }
+
+    const omgBaseVol = fatGrams * 10; 
+    const adminVolTotal = omgBaseVol + vitBaseVol;
+
+    // קצב - עיגול מחמיר למטה למשאבה
+    const rawRate = adminVolTotal / 24;
+    const rateRounded = Math.floor(rawRate * 10) / 10;
+
+    // חישוב בפועל
+    const actualVol24h = rateRounded * 24;
+    const actualOmgVol = actualVol24h * (omgBaseVol / adminVolTotal);
+    const actualFatGrams = actualOmgVol / 10;
+    const actualFatPerKg = actualFatGrams / w;
+
+    // הרכב מזרק להכנה
+    const prepVit = vitBaseVol;
+    const prepTotal = omgBaseVol + 5 + prepVit;
+
+    // עדכון המסך
+    document.getElementById('adminRate').innerText = rateRounded.toFixed(1);
+    document.getElementById('limitReason').innerText = reason;
+    document.getElementById('omgExp').innerText = `(לפי יעד של ${(fatGrams / w).toFixed(2)} ג'/ק"ג)`;
+    
+    document.getElementById('actualVolVal').innerText = actualVol24h.toFixed(1);
+    document.getElementById('actualFatGramsVal').innerText = actualFatGrams.toFixed(2);
+    document.getElementById('actualFatPerKgVal').innerText = actualFatPerKg.toFixed(2);
+
+    document.getElementById('prepOmgBase').innerText = omgBaseVol.toFixed(1) + ' מ"ל';
+    document.getElementById('prepVit').innerText = prepVit.toFixed(1) + ' מ"ל';
+    document.getElementById('prepTotal').innerText = prepTotal.toFixed(1) + ' מ"ל';
+}
+</script>
+</body>
+</html>
