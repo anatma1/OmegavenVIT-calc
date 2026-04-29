@@ -246,12 +246,12 @@ function build() {
     if (!w || w <= 0 || !b.value || isNaN(r) || r < 0) { c.style.display = 'none'; return; }
     c.style.display = 'block';
 
-    // חישוב ויטמינים מראש כי הם משפיעים על מגבלת המזרק
+    // חישוב ויטמינים
     let vitBaseVol = (w < 2.5) ? (w * 4) : 10;
     let vitExpText = (w < 2.5) ? `(לפי 4 מ"ל/ק"ג)` : `(10 מ"ל קבוע למשקל מ-2.5 ק"ג)`;
     document.getElementById('vitExp').innerText = vitExpText;
 
-    // מגבלות שומן בגרמים
+    // מגבלות שומן
     const maxWeightGrams = w * 1.0; 
     const maxVolGrams = 10.0; // 100ml max Omegaven
 
@@ -259,8 +259,7 @@ function build() {
     const bagKcal = (r * 24) * (parseFloat(o.dataset.kcal) / parseFloat(o.dataset.vol));
     const maxPercGrams = ((4/6) * bagKcal) / 10;
 
-    // מגבלת נפח מזרק: 60 = (Grams * 10) + 5 + vitBaseVol
-    // => Grams = (55 - vitBaseVol) / 10
+    // מגבלת מזרק: 60 מ"ל סה"כ הכנה
     const maxSyringeGrams = (55 - vitBaseVol) / 10;
 
     let fatGrams = Math.min(maxWeightGrams, maxVolGrams, maxPercGrams, maxSyringeGrams);
@@ -277,7 +276,7 @@ function build() {
     const omgBaseVol = fatGrams * 10; 
     const adminVolTotal = omgBaseVol + vitBaseVol;
 
-    // קצב - עיגול מחמיר למטה למשאבה
+    // עיגול בטיחותי כלפי מטה תמיד
     const rawRate = adminVolTotal / 24;
     const rateRounded = Math.floor(rawRate * 10) / 10;
 
@@ -287,7 +286,7 @@ function build() {
     const actualFatGrams = actualOmgVol / 10;
     const actualFatPerKg = actualFatGrams / w;
 
-    // הרכב מזרק להכנה
+    // הרכב מזרק
     const prepVit = vitBaseVol;
     const prepTotal = omgBaseVol + 5 + prepVit;
 
